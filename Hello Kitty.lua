@@ -1,4 +1,4 @@
-local version = 1.1
+local version = 1.2
 
 
 ------ CHECK GAMEPASS ------
@@ -58,7 +58,7 @@ Window:Tag({
     Title = "v" ..version,
     Icon = "octagon-alert",
     Color = Color3.fromHex("#30ff6a"),
-    Radius = 13, -- from 0 to 13
+    Radius = 13,
 })
 Window:Tag({
     Title = "Beta",
@@ -2507,6 +2507,7 @@ screenGui:Destroy()
 -- Key System UI
 --==================================================
 
+local function key()
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
@@ -3244,3 +3245,199 @@ end)
 --==================================================
 
 openUI()
+end
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+local Player = Players.LocalPlayer
+
+--// ScreenGui
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "DeviceNotice"
+Gui.ResetOnSpawn = false
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Parent = Player:WaitForChild("PlayerGui")
+
+--// Background Blur
+local Blur = Instance.new("BlurEffect")
+Blur.Size = 12
+Blur.Parent = game:GetService("Lighting")
+
+--// Main
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromOffset(470, 250)
+Main.Position = UDim2.fromScale(0.5, 0.5)
+Main.AnchorPoint = Vector2.new(0.5, 0.5)
+Main.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Main.BorderSizePixel = 0
+Main.Parent = Gui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 18)
+MainCorner.Parent = Main
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(65, 65, 75)
+Stroke.Thickness = 1.2
+Stroke.Transparency = 0.25
+Stroke.Parent = Main
+
+--// Top Icon
+local Icon = Instance.new("TextLabel")
+Icon.Size = UDim2.fromOffset(48, 48)
+Icon.Position = UDim2.fromOffset(22, 20)
+Icon.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+Icon.Text = "!"
+Icon.TextColor3 = Color3.fromRGB(255, 190, 70)
+Icon.TextSize = 27
+Icon.Font = Enum.Font.GothamBold
+Icon.Parent = Main
+
+local IconCorner = Instance.new("UICorner")
+IconCorner.CornerRadius = UDim.new(1, 0)
+IconCorner.Parent = Icon
+
+--// Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -90, 0, 32)
+Title.Position = UDim2.fromOffset(82, 22)
+Title.BackgroundTransparency = 1
+Title.Text = "System Notice"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Main
+
+--// Small subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1, -90, 0, 22)
+Subtitle.Position = UDim2.fromOffset(82, 50)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Important information"
+Subtitle.TextColor3 = Color3.fromRGB(145, 145, 155)
+Subtitle.TextSize = 13
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+Subtitle.Parent = Main
+
+--// Divider
+local Divider = Instance.new("Frame")
+Divider.Size = UDim2.new(1, -44, 0, 1)
+Divider.Position = UDim2.fromOffset(22, 82)
+Divider.BackgroundColor3 = Color3.fromRGB(55, 55, 63)
+Divider.BorderSizePixel = 0
+Divider.Parent = Main
+
+--// Message
+local Message = Instance.new("TextLabel")
+Message.Size = UDim2.new(1, -50, 0, 75)
+Message.Position = UDim2.fromOffset(25, 96)
+Message.BackgroundTransparency = 1
+Message.TextWrapped = true
+Message.Text = "Sorry, this script requires your IP address\nand a powerful mobile device."
+Message.TextColor3 = Color3.fromRGB(205, 205, 215)
+Message.TextSize = 16
+Message.Font = Enum.Font.Gotham
+Message.TextXAlignment = Enum.TextXAlignment.Center
+Message.TextYAlignment = Enum.TextYAlignment.Center
+Message.Parent = Main
+
+--// Cancel Button
+local Cancel = Instance.new("TextButton")
+Cancel.Size = UDim2.fromOffset(195, 45)
+Cancel.Position = UDim2.fromOffset(25, 190)
+Cancel.BackgroundColor3 = Color3.fromRGB(35, 35, 42)
+Cancel.Text = "Cancel"
+Cancel.TextColor3 = Color3.fromRGB(225, 225, 230)
+Cancel.TextSize = 15
+Cancel.Font = Enum.Font.GothamBold
+Cancel.AutoButtonColor = false
+Cancel.Parent = Main
+
+local CancelCorner = Instance.new("UICorner")
+CancelCorner.CornerRadius = UDim.new(0, 11)
+CancelCorner.Parent = Cancel
+
+--// Executor Button
+local Executor = Instance.new("TextButton")
+Executor.Size = UDim2.fromOffset(195, 45)
+Executor.Position = UDim2.fromOffset(250, 190)
+Executor.BackgroundColor3 = Color3.fromRGB(75, 115, 255)
+Executor.Text = "Executor"
+Executor.TextColor3 = Color3.fromRGB(255, 255, 255)
+Executor.TextSize = 15
+Executor.Font = Enum.Font.GothamBold
+Executor.AutoButtonColor = false
+Executor.Parent = Main
+
+local ExecutorCorner = Instance.new("UICorner")
+ExecutorCorner.CornerRadius = UDim.new(0, 11)
+ExecutorCorner.Parent = Executor
+
+--// Hover Effects
+local function Hover(button, normal, hover)
+    button.MouseEnter:Connect(function()
+        TweenService:Create(
+            button,
+            TweenInfo.new(0.15),
+            {BackgroundColor3 = hover}
+        ):Play()
+    end)
+
+    button.MouseLeave:Connect(function()
+        TweenService:Create(
+            button,
+            TweenInfo.new(0.15),
+            {BackgroundColor3 = normal}
+        ):Play()
+    end)
+end
+
+Hover(
+    Cancel,
+    Color3.fromRGB(35, 35, 42),
+    Color3.fromRGB(50, 50, 60)
+)
+
+Hover(
+    Executor,
+    Color3.fromRGB(75, 115, 255),
+    Color3.fromRGB(95, 130, 255)
+)
+
+--// Cancel
+Cancel.MouseButton1Click:Connect(function()
+    TweenService:Create(
+        Main,
+        TweenInfo.new(0.2),
+        {
+            Size = UDim2.fromOffset(430, 220),
+            BackgroundTransparency = 1
+        }
+    ):Play()
+
+    task.wait(0.2)
+
+    Blur:Destroy()
+    Gui:Destroy()
+end)
+
+--// Executor
+Executor.MouseButton1Click:Connect(function()
+    TweenService:Create(
+        Main,
+        TweenInfo.new(0.2),
+        {
+            Size = UDim2.fromOffset(430, 220),
+            BackgroundTransparency = 1
+        }
+    ):Play()
+
+    task.wait(0.2)
+
+    Blur:Destroy()
+    Gui:Destroy()
+    key()
+end)
