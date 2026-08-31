@@ -1,4 +1,4 @@
-local version = 1.0
+local version = 1.1
 
 
 ------ CHECK GAMEPASS ------
@@ -7,7 +7,8 @@ local Players = game:GetService("Players")
 local PlayerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local HttpService = game:GetService("HttpService")
-local LogoID = "rbxassetid://17813607147"
+local LogoID = "rbxassetid://000"
+local backgroundID = "rbxassetid://000"
 
 
 local Players = game:GetService("Players")
@@ -15,7 +16,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 
 local premium = false
 local player = Players.LocalPlayer
-local gamepassID = 1325778239
+local gamepassID = 1963837218
 
 
 local function checkGamepass()
@@ -46,13 +47,28 @@ local function HelloKitty()
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
 
 local Window = WindUI:CreateWindow({
-    Title = "Hello Kitty | v" .. version,
-    Icon = "door-open",
+    Title = "Hello kitty",
+    Icon = "zap",
     Author = "by .zorx",
+    BackgroundImageTransparency = 0.42,
+    Background = backgroundID,
+})
+
+Window:Tag({
+    Title = "v" ..version,
+    Icon = "octagon-alert",
+    Color = Color3.fromHex("#30ff6a"),
+    Radius = 13, -- from 0 to 13
+})
+Window:Tag({
+    Title = "Beta",
+    Icon = "shield-check",
+    Color = Color3.fromHex("#FF0000"),
+    Radius = 13, -- from 0 to 13
 })
 
 Window:EditOpenButton({
-    Title = "HelloKitty",
+    Title = "Open Example UI",
     Icon = "monitor",
     CornerRadius = UDim.new(0,16),
     StrokeThickness = 2,
@@ -60,16 +76,233 @@ Window:EditOpenButton({
         Color3.fromHex("FF0F7B"), 
         Color3.fromHex("F89B29")
     ),
-    OnlyMobile = true,
-    Enabled = true,
-    Draggable = true,
+    OnlyMobile = false,
+    Enabled = false,
+    Draggable = false,
 })
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- =========================
+-- Create GUI
+-- =========================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MyToggleGui"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = playerGui
+
+-- =========================
+-- Image Button
+-- =========================
+
+local button = Instance.new("ImageButton")
+button.Name = "ToggleButton"
+button.Size = UDim2.fromOffset(50, 50)
+button.Position = UDim2.new(0, 25, 0.5, -35)
+
+button.BackgroundTransparency = 1
+button.BorderSizePixel = 0
+button.AutoButtonColor = false
+
+button.Image = "rbxassetid://102815775006103"
+button.ScaleType = Enum.ScaleType.Fit
+
+button.Parent = gui
+
+-- =========================
+-- Make Image Circular
+-- =========================
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(1, 0)
+corner.Parent = button
+
+-- =========================
+-- Settings
+-- =========================
+
+local IMAGE_OFF = "rbxassetid://102815775006103"
+local IMAGE_ON = "rbxassetid://102815775006103"
+
+local HOLD_TIME = 0.5
+
+local isToggled = false
+local isHolding = false
+local holdStartTime = 0
+local connection = nil
+
+-- =========================
+-- Toggle
+-- =========================
+
+local function setToggleState(state)
+
+	isToggled = state
+
+	if state then
+		button.Image = IMAGE_ON
+		print("Toggle ON")
+	else
+		button.Image = IMAGE_OFF
+		print("Toggle OFF")
+	end
+
+end
+
+-- =========================
+-- Hold
+-- =========================
+
+local function startHold()
+
+	if isHolding then
+		return
+	end
+
+	isHolding = true
+	holdStartTime = tick()
+
+	TweenService:Create(
+		button,
+		TweenInfo.new(HOLD_TIME),
+		{
+			ImageTransparency = 0.4
+		}
+	):Play()
+
+	connection = RunService.Heartbeat:Connect(function()
+
+		if isHolding and tick() - holdStartTime >= HOLD_TIME then
+
+			setToggleState(not isToggled)
+
+			isHolding = false
+
+			if connection then
+				connection:Disconnect()
+				connection = nil
+			end
+
+			TweenService:Create(
+				button,
+				TweenInfo.new(0.15),
+				{
+					ImageTransparency = 0
+				}
+			):Play()
+
+		end
+
+	end)
+
+end
+
+local function cancelHold()
+
+	if not isHolding then
+		return
+	end
+
+	isHolding = false
+
+	if connection then
+		connection:Disconnect()
+		connection = nil
+	end
+
+	TweenService:Create(
+		button,
+		TweenInfo.new(0.15),
+		{
+			ImageTransparency = 0
+		}
+	):Play()
+
+end
+
+-- =========================
+-- Drag System
+-- =========================
+
+local dragging = false
+local dragStart
+local startPosition
+
+button.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+
+		dragStart = input.Position
+		startPosition = button.Position
+
+		startHold()
+
+	end
+
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+
+	if not dragging then
+		return
+	end
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		local delta = input.Position - dragStart
+
+		button.Position = UDim2.new(
+			startPosition.X.Scale,
+			startPosition.X.Offset + delta.X,
+
+			startPosition.Y.Scale,
+			startPosition.Y.Offset + delta.Y
+		)
+
+	end
+
+end)
+
+button.InputEnded:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = false
+
+		cancelHold()
+
+	end
+
+end)
+
+-- =========================
+-- Start
+
+button.MouseButton1Click:Connect(function()
+    Window:Toggle()
+end)
+-- =========================
+
+setToggleState(false)
 
 Window:DisableTopbarButtons({
     "Close", 
+    "Minimize", 
     "Fullscreen",
 })
-
 ------ FUNCTION REQUEST ---------
 
 local function noti(title, content, duration)
@@ -162,15 +395,301 @@ local t1 = Window:Tab({
 
 Window:SelectTab(1) 
 
-local Paragraph = t1:Paragraph({
-    Title = "Hello Kitty Is Beta Please sorry for bug",
-    Desc = "Im just next update",
-    Color = "Red",
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- Wait for player
+repeat task.wait() until LocalPlayer and LocalPlayer:IsA("Player")
+
+local info = t1:Paragraph({
+    Title = "You Information",
+    Desc = "Please Wait",
     Image = "",
     ImageSize = 30,
     Thumbnail = "",
     ThumbnailSize = 80,
     Locked = false,
+})
+
+
+local currentFPS = 0
+local frames = 0
+local lastFPSUpdate = os.clock()
+
+RunService.RenderStepped:Connect(function()
+    frames = frames + 1
+    local now = os.clock()
+    if now - lastFPSUpdate >= 1 then
+        currentFPS = frames
+        frames = 0
+        lastFPSUpdate = now
+    end
+end)
+
+-- Helper Functions
+local function formatTime(seconds)
+    seconds = math.floor(seconds)
+    local h = math.floor(seconds / 3600)
+    local m = math.floor((seconds % 3600) / 60)
+    local s = seconds % 60
+    return string.format("%02d:%02d:%02d", h, m, s)
+end
+
+local function getPing()
+    local ping = "N/A"
+    pcall(function()
+        local item = Stats:FindFirstChild("Network")
+        if item then
+            local stats = item:FindFirstChild("ServerStatsItem")
+            if stats then
+                local data = stats:FindFirstChild("Data Ping")
+                if data then
+                    ping = string.format("%d ms", math.floor(data:GetValue()))
+                end
+            end
+        end
+    end)
+    return ping
+end
+
+local function getDevice()
+    if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+        return "📱 Mobile"
+    elseif UserInputService.GamepadEnabled and not UserInputService.KeyboardEnabled then
+        return "🎮 Console"
+    elseif UserInputService.KeyboardEnabled then
+        return "💻 PC"
+    else
+        return "❓ Unknown"
+    end
+end
+
+local function getPlatform()
+    local success, platform = pcall(function()
+        return UserInputService:GetPlatform()
+    end)
+    if success and platform then
+        return tostring(platform):gsub("Enum.Platform.", "")
+    end
+    return "Unknown"
+end
+
+local function getMemory()
+    local memory = "N/A"
+    pcall(function()
+        memory = string.format("%.1f MB", Stats:GetTotalMemoryUsageMb())
+    end)
+    return memory
+end
+
+local startTime = os.clock()
+
+-- Update Loop
+task.spawn(function()
+    while task.wait(1) do
+        local success, accountAge = pcall(function()
+            return LocalPlayer.AccountAge
+        end)
+        
+        local playerCount = #Players:GetPlayers()
+        local maxPlayers = Players.MaxPlayers
+
+        local gameName = "Unknown"
+        pcall(function()
+            local info = MarketplaceService:GetProductInfo(game.PlaceId)
+            gameName = info.Name
+        end)
+
+        local jobId = game.JobId
+        if jobId == "" then jobId = "🏠 Studio / Local Server" end
+
+        local device = getDevice()
+        local platform = getPlatform()
+        local ping = getPing()
+        local memory = getMemory()
+
+        local camera = Workspace.CurrentCamera
+        local resolution = "N/A"
+        if camera then
+            local viewport = camera.ViewportSize
+            resolution = string.format("%d x %d", math.floor(viewport.X), math.floor(viewport.Y))
+        end
+
+        local currentTime = os.date("%H:%M:%S")
+
+        local desc = string.format(
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "👤 ACCOUNT\n" ..
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "Name        : %s\n" ..
+            "Display     : %s\n" ..
+            "User ID     : %d\n" ..
+            "Account Age : %d Days\n\n" ..
+
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "🎮 GAME\n" ..
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "Game Name   : %s\n" ..
+            "Place ID    : %d\n" ..
+            "Players     : %d/%d\n" ..
+            "Job ID      : %s\n\n" ..
+
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "⚡ PERFORMANCE\n" ..
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "Play Time   : %s\n" ..
+            "Ping        : %s\n" ..
+            "FPS         : %d\n" ..
+            "Memory      : %s\n\n" ..
+
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "💻 DEVICE\n" ..
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "Device      : %s\n" ..
+            "Platform    : %s\n" ..
+            "Resolution  : %s\n\n" ..
+
+            "━━━━━━━━━━━━━━━━━━━━━━\n" ..
+            "🕐 %s\n" ..
+            "━━━━━━━━━━━━━━━━━━━━━━",
+
+            LocalPlayer.Name,
+            LocalPlayer.DisplayName,
+            LocalPlayer.UserId,
+            accountAge or 0,
+            gameName,
+            game.PlaceId,
+            playerCount,
+            maxPlayers,
+            jobId,
+            formatTime(os.clock() - startTime),
+            ping,
+            currentFPS,
+            memory,
+            device,
+            platform,
+            resolution,
+            currentTime
+        )
+
+        pcall(function()
+            info:SetDesc(desc)
+        end)
+    end
+end)
+
+local Paragraph = t1:Paragraph({
+    Title = "Hello Kitty Is in Beta — Sorry for the Bugs",
+    Desc = "I'm working on the next update.",
+    Image = "",
+    ImageSize = 30,
+    Thumbnail = "",
+    ThumbnailSize = 80,
+    Locked = false,
+})
+
+local HttpService = game:GetService("HttpService")
+
+-- =========================
+-- Theme Save Settings
+-- =========================
+
+
+
+local FOLDER = "Hellokitty"
+local FILE = FOLDER .. "/theme.json"
+
+local function saveTheme(themeName)
+    if not writefile then
+        warn("writefile is not supported")
+        return
+    end
+
+    if makefolder and isfolder and not isfolder(FOLDER) then
+        makefolder(FOLDER)
+    end
+
+    local data = {
+        Theme = themeName
+    }
+
+    writefile(FILE, HttpService:JSONEncode(data))
+end
+
+local function loadTheme()
+    if not readfile or not isfile then
+        return nil
+    end
+
+    if not isfile(FILE) then
+        return nil
+    end
+
+    local success, result = pcall(function()
+        return HttpService:JSONDecode(readfile(FILE))
+    end)
+
+    if success and result and result.Theme then
+        return result.Theme
+    end
+
+    return nil
+end
+
+-- =========================
+-- Get All WindUI Themes
+-- =========================
+
+local themes = WindUI:GetThemes()
+local themeList = {}
+
+for name, _ in pairs(themes) do
+    table.insert(themeList, tostring(name))
+end
+
+table.sort(themeList)
+
+-- =========================
+-- Load Saved Theme
+-- =========================
+
+local savedTheme = loadTheme()
+
+if savedTheme and themes[savedTheme] then
+    WindUI:SetTheme(savedTheme)
+end
+
+-- =========================
+-- Theme Dropdown
+-- =========================
+
+local Dropdown = t1:Dropdown({
+    Title = "Theme",
+    Desc = "Select your UI theme",
+
+    Values = themeList,
+
+    Value = (savedTheme and themes[savedTheme])
+        and savedTheme
+        or themeList[1],
+
+    Callback = function(option)
+        option = tostring(option)
+
+        -- Apply theme
+        WindUI:SetTheme(option)
+
+        -- Save theme
+        saveTheme(option)
+
+        print("Theme Saved: " .. option)
+    end
 })
 
 -------- TAB 2 -----------
@@ -1259,7 +1778,7 @@ AddScript("Brookhaven 1", "https://raw.githubusercontent.com/Daivd977/Deivd999/r
 AddScript("Brookhaven 2", "https://safetycode-free.vercel.app/api/run?uid=sOVADqgSEOWfKJeo23vm")
 
 AddGame("Build a battle")
-AddScript("Build a battle 1", "https://raw.githubusercontent.com/Bysuskhmerops62/script-/refs/heads/main/Build%20and%20Battle.lua.txt")
+AddScript("Build a battle 1", "https://rawscripts.net/raw/NUKE!-Build-and-Battle!-limnchhubRevorkTEST-24053")
 AddScript("Build a battle 2", "https://raw.githubusercontent.com/UhGbaaaa/Game-script-/main/Build%20a%20battle.txt")
 AddScript("Build a battle 3", "https://raw.githubusercontent.com/linhmcfake/Script/refs/heads/main/MaxNo1.lua.txt")
 
@@ -1770,7 +2289,7 @@ local Paragraph = t9:Paragraph({
             Title = "Buy Now",
             Callback = function()
                 print(" Buy Button Clicked!")
-                setclipboard("https://www.roblox.com/game-pass/1325778239")
+                setclipboard("https://www.roblox.com/game-pass/1963837218")
             end,
         }
     }
