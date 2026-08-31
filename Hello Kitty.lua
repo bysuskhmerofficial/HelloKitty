@@ -1778,7 +1778,7 @@ AddScript("Brookhaven 1", "https://raw.githubusercontent.com/Daivd977/Deivd999/r
 AddScript("Brookhaven 2", "https://safetycode-free.vercel.app/api/run?uid=sOVADqgSEOWfKJeo23vm")
 
 AddGame("Build a battle")
-AddScript("Build a battle 1", "https://rawscripts.net/raw/NUKE!-Build-and-Battle!-limnchhubRevorkTEST-24053")
+AddScript("Build a battle 1", "https://rawscripts.net/raw/NUKE!-Build-and-Battle!-limnchhubRevorkTEST-240532")
 AddScript("Build a battle 2", "https://raw.githubusercontent.com/UhGbaaaa/Game-script-/main/Build%20a%20battle.txt")
 AddScript("Build a battle 3", "https://raw.githubusercontent.com/linhmcfake/Script/refs/heads/main/MaxNo1.lua.txt")
 
