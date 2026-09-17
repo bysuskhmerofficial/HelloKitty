@@ -1,0 +1,27 @@
+local function NoCollision(plr)
+            if AntiFling and plr.Character then
+                for _, part in ipairs(plr.Character:GetDescendants()) do
+                    if part:IsA("BasePart") and part.CanCollide then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end
+
+        -- Apply to existing players
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer then
+                RunService.Stepped:Connect(function()
+                    NoCollision(player)
+                end)
+            end
+        end
+
+        -- Apply to new players
+        Players.PlayerAdded:Connect(function(player)
+            if player ~= LocalPlayer then
+                RunService.Stepped:Connect(function()
+                    NoCollision(player)
+                end)
+            end
+        end)
