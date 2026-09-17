@@ -1,0 +1,33 @@
+-- Anti-AFK Script
+-- Prevents Roblox from kicking the player for being idle.
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- VirtualUser is used to simulate input without actually moving the character.
+local VirtualUser = game:GetService("VirtualUser")
+
+-- How often (in seconds) to simulate activity. Roblox kicks after ~20 minutes of inactivity.
+local INTERVAL = 60
+
+local connection
+
+local function antiAfk()
+    -- Simulate a key press to reset the idle timer.
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end
+
+-- Start the anti-AFK loop.
+connection = task.spawn(function()
+    while task.wait(INTERVAL) do
+        pcall(antiAfk)
+    end
+end)
+
+-- Clean up if the player leaves (mainly relevant in Studio).
+Players.PlayerRemoving:Connect(function(leavingPlayer)
+    if leavingPlayer == player and connection then
+        task.cancel(connection)
+    end
+end)
